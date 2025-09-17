@@ -1,3 +1,6 @@
+<details>
+<summary><b>Tugas 2</b></summary>
+
 https://daffa-syafitra-tokofootballerjago.pbp.cs.ui.ac.id
 
 1) Implementasi checklist – langkah demi langkah (versi saya)
@@ -54,3 +57,38 @@ Incredibly versatile (serbaguna untuk berbagai jenis aplikasi)
 
 6) Feedback untuk asdos
 asdosnya udah baik dan sangat membantu saya yg kesusahan di tutorial 1 kemarin
+</details>
+
+<details>
+<summary><b>Tugas 3</b></summary>
+
+1. Mengapa perlu data delivery
+   Agar frontend dan layanan lain bisa memakai data yang sama, memisahkan UI dari logic, memudahkan skalabilitas dan otomasi, serta membuat respons terstruktur yang mudah divalidasi dan di cache
+   Di tugas ini aku buat endpoint products json, products xml, dan versi per id
+
+2. XML vs JSON
+   JSON lebih ringkas, mudah dipakai di JavaScript dan banyak SDK, tipe datanya langsung sesuai, dan parsing biasanya lebih cepat
+   XML tetap berguna jika butuh skema ketat atau dokumen campuran
+   Untuk CRUD produk, JSON lebih praktis
+
+3. Fungsi is_valid pada Form Django
+   Menjalankan validator, mengonversi tipe, mengisi cleaned data, dan menyiapkan pesan error
+   Dipakai sebelum simpan agar data kotor ditolak, aman, dan pengguna dapat umpan balik
+
+4. Mengapa perlu csrf_token pada form
+   Server memeriksa token unik di setiap POST
+   Tanpa token, permintaan ditolak 403 dan situs rentan CSRF
+
+5. Langkah implementasi yang kulakukan
+   – Setup proyek dan app, daftarkan app dan template dasar
+   – Model Product berisi name, price, category choices, description, stock, thumbnail, is featured, lalu migrasi
+   – ModelForm untuk Product dan halaman tambah produk dengan csrf token
+   – View show main untuk identitas dan daftar, create product untuk proses form dengan is valid lalu simpan, show product untuk detail
+   – Hapus increment views yang bikin error
+   – Routing untuk halaman utama, tambah produk, dan detail
+   – Endpoint json dan xml untuk semua produk dan per id
+   – Uji tambah produk, pastikan tampil dan endpoint sesuai data di database
+
+6. Asdos sudah membantu banyak di tutorial2
+
+</details>
