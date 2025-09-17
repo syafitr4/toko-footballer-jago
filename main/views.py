@@ -15,7 +15,7 @@ def show_main(request):
     product_list = Product.objects.all()
     context = {
         'npm': '2406495546',     # isi punyamu
-        'name': 'Daffa Syafitra',     # isi punyamu
+        'name': request.user.username,     # isi punyamu
         'class': 'PBP B',        # isi punyamu
         'product_list': product_list,
         'last_login': request.COOKIES.get('last_login','never'),
