@@ -91,4 +91,36 @@ asdosnya udah baik dan sangat membantu saya yg kesusahan di tutorial 1 kemarin
 
 6. Asdos sudah membantu banyak di tutorial2
 
+ohh iya, bener—soalnya cuma 5. tadi aku ikut masukin ringkasan poin tugasmu juga, jadinya total 10. ini aku rapihin jadi **hanya 5 jawaban sesuai soal** (minim simbol):
+
+<details>
+<summary><b>Tugas 3</b></summary>
+
+1. Apa itu Django AuthenticationForm? Kelebihan dan kekurangan
+   AuthenticationForm adalah form bawaan untuk login yang memvalidasi username dan password lewat auth backend Django.
+   Kelebihan: siap pakai, aman karena pakai hashing Django, pesan error standar rapi.
+   Kekurangan: tampilan polos, kustomisasi flow terbatas (misal login pakai email), tidak ada throttling atau lockout bawaan.
+
+2. Perbedaan autentikasi dan otorisasi serta implementasinya di Django
+   Autentikasi = verifikasi identitas pengguna. Implementasi: authenticate, login, logout, request.user, user.is\authenticated.
+   Otorisasi = cek hak akses setelah terautentikasi. Implementasi: permissions dan groups (user.has\perm), decorator login\required dan permission\required, flag staff dan superuser.
+
+3. Kelebihan dan kekurangan session dan cookies untuk state
+   Cookies: kelebihan ringan dan tidak perlu storage server; kekurangan mudah dibaca atau diubah klien jika tidak diamankan, ukuran terbatas, tidak cocok data sensitif.
+   Session: kelebihan data disimpan di server sehingga lebih aman dan bisa lebih besar; kekurangan butuh storage server dan manajemen kedaluwarsa, ada overhead skalabilitas.
+
+4. Apakah cookies aman secara default dan bagaimana Django menangani
+   Tidak otomatis aman. Risiko: XSS, sniffing pada koneksi tanpa HTTPS, CSRF, pelacakan lintas situs.
+   Penanganan Django: aktifkan CSRF middleware dan gunakan csrf\token pada form; gunakan flag HttpOnly, Secure, dan SameSite pada session cookie dan CSRF cookie; gunakan HTTPS; bisa pakai signed cookie untuk menjaga integritas nilai.
+
+5. Cara mengimplementasikan checklist secara step-by-step
+   Inisialisasi proyek dan app, daftarkan app di INSTALLED\APPS dan set ALLOWED\HOSTS
+   Atur routing di config/urls.py dan main/urls.py
+   Buat model Product lalu makemigrations dan migrate
+   Buat ModelForm dan template form yang menyertakan csrf
+   Implementasi views show\main, show\product, create\product
+   Buat endpoint JSON dan XML (semua dan per id)
+   Uji lokal halaman dan endpoint
+   Deploy ke PWS dengan ALLOWED\HOSTS yang benar
+
 </details>
