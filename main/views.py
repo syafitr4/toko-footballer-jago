@@ -12,24 +12,36 @@ from django.urls import reverse
 
 @login_required(login_url='/login')
 def show_main(request):
-    product_list = Product.objects.all()
-    context = {
-        'npm': '2406495546',     # isi punyamu
-        'name': request.user.username,     # isi punyamu
-        'class': 'PBP B',        # isi punyamu
-        'product_list': product_list,
-        'last_login': request.COOKIES.get('last_login','never'),
-    }
-    return render(request, "main.html", context)
+    filter_type = request.GET.get("filter", "all")  # default 'all'
 
+    if filter_type == "all":
+        product_list = Product.objects.all()
+    else:
+        product_list = Product.objects.filter(user=request.user)
+
+    context = {
+        'npm': '2406495546',
+        'name': request.user.username,
+        'class': 'PBP B',
+        'product_list': product_list,
+        'last_login': request.COOKIES.get('last_login', 'Never')
+    }
+    return render(request, "main.html",context)
+
+@login_required(login_url='/login')
 def create_product(request):
     form = ProductForm(request.POST or None)
 
-    if form.is_valid() and request.method == "POST":
-        form.save()
+    if form.is_valid() and request.method == 'POST':
+        product_entry = form.save(commit = False)
+        product_entry.user = request.user
+        product_entry.save()
         return redirect('main:show_main')
 
-    context = {'form': form}
+    context = {
+        'form': form
+    }
+
     return render(request, "create_product.html", context)
 
 @login_required(login_url='/login')

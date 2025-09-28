@@ -90,11 +90,9 @@ asdosnya udah baik dan sangat membantu saya yg kesusahan di tutorial 1 kemarin
    – Uji tambah produk, pastikan tampil dan endpoint sesuai data di database
 
 6. Asdos sudah membantu banyak di tutorial2
-
-ohh iya, bener—soalnya cuma 5. tadi aku ikut masukin ringkasan poin tugasmu juga, jadinya total 10. ini aku rapihin jadi **hanya 5 jawaban sesuai soal** (minim simbol):
-
+</details>
 <details>
-<summary><b>Tugas 3</b></summary>
+<summary><b>Tugas 4</b></summary>
 
 1. Apa itu Django AuthenticationForm? Kelebihan dan kekurangan
    AuthenticationForm adalah form bawaan untuk login yang memvalidasi username dan password lewat auth backend Django.
