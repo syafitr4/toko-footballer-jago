@@ -3,11 +3,60 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     {% block meta %} {% endblock meta %}
-</head>
+    <title>Toko Footballer Jago</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style type="text/tailwindcss">
+  @layer base {
+    /* Elemen form umum */
+    input[type="text"],
+    input[type="number"],
+    input[type="url"],
+    input[type="email"],
+    input[type="password"],
+    input[type="search"],
+    input[type="tel"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    textarea {
+      @apply w-full px-3 py-2 rounded-md
+             bg-neutral-900 text-neutral-100
+             border border-neutral-600
+             placeholder-neutral-400
+             focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500;
+    }
 
-<body>
-    {% block content %} {% endblock content %}
+    /* Checkbox & radio */
+    input[type="checkbox"],
+    input[type="radio"] {
+      @apply accent-purple-600 bg-neutral-900 border-neutral-600;
+    }
+
+    /* Label & help text */
+    label { @apply text-neutral-300; }
+    small, .helptext { @apply text-neutral-400; }
+
+    /* Error bawaan Django: <ul class="errorlist"><li>...</li></ul> */
+    ul.errorlist { @apply text-red-400 text-sm mt-1 list-disc pl-5; }
+  }
+
+  @layer components {
+    /* Tombol cepat dipakai ulang */
+    .btn       { @apply inline-flex items-center px-4 py-2 rounded-md border border-neutral-600 text-neutral-200 bg-neutral-800 hover:bg-neutral-700 transition-colors; }
+    .btn-primary { @apply bg-purple-600 text-white border-transparent hover:bg-purple-700; }
+  }
+</style>
+
+</head>
+<body class="min-h-screen bg-neutral-900 text-neutral-100">
+  {% if messages %}
+    <ul class="p-4">
+      {% for m in messages %}<li>{{ m }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+  {% include 'navbar.html' %}
+  {% block content %}{% endblock content %}
 </body>
 </html>

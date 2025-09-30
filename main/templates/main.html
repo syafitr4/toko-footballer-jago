@@ -1,56 +1,43 @@
-<h1>Toko Footballer Jago</h1>
+{% extends 'base.html' %}
+{% load static %}
 
-<h5>NPM: </h5>
-<p>{{ npm }}</p>
+{% block meta %}
+<title>Toko Footballer Jago</title>
+{% endblock meta %}
 
-<h5>Name:</h5>
-<p>{{ name }}</p>
-
-<h5>Class:</h5>
-<p>{{ class }}</p>
-
-<a href="{% url 'main:create_product' %}">
-  <button>+ Add Product</button>
-</a>
-<a href="{% url 'main:logout' %}">
-  <button>Logout</button>
-</a>
-<h5>Sesi terakhir login: {{ last_login }}</h5>
-<hr>
-<a href="?filter=all">
-    <button type="button">All Products</button>
-</a>
-<a href="?filter=my">
-    <button type="button">My Products</button>
-</a> 
+{% block content %}
 
 
-{% if not product_list %}
-<p>Belum ada data produk pada Toko Footballer Jago.</p>
-{% else %}
 
-{% for product in product_list %}
-<div>
-  <h2><a href="{% url 'main:show_product' product.id %}">{{ product.name }}</a></h2>
+  <!-- Header info -->
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 pt-8">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+    </div>
 
-  <p>
-    {% if product.is_featured %}<b>Featured</b> | {% endif %}
-    {% if product.is_hot %}<b>Hot</b> | {% endif %}
-    <i>{{ product.created_at|date:"d M Y H:i" }}</i> |
-    <b>Category:</b> {{ product.get_category_display|default:product.category|default:"-" }}
-  </p>
+    <!-- Filter bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-6 mb-8 bg-neutral-800 border border-neutral-700 p-4 rounded-lg">
+      <div class="flex space-x-3 mb-4 sm:mb-0">
+        <a href="{% url 'main:show_main' %}" class="{% if request.GET.filter == 'all' or not request.GET.filter %} bg-purple-600 text-white {% else %} bg-neutral-800 text-neutral-200 border border-neutral-600 hover:bg-neutral-700 {% endif %} px-4 py-2 rounded-md font-medium transition-colors">All Products</a>
+        <a href="{% url 'main:show_main' %}?filter=my" class="{% if request.GET.filter == 'my' %} bg-purple-600 text-white {% else %} bg-neutral-800 text-neutral-200 border border-neutral-600 hover:bg-neutral-700 {% endif %} px-4 py-2 rounded-md font-medium transition-colors">My Products</a>
+        <a href="{% url 'main:create_product' %}" class="bg-neutral-800 text-neutral-200 border border-neutral-600 hover:bg-neutral-700 px-4 py-2 rounded-md font-medium transition-colors">+ Add Product</a>
+      </div>
+      {% if user.is_authenticated %}
+        <div class="text-sm text-neutral-400">Sesi terakhir login: {{ last_login }}</div>
+      {% endif %}
+    </div>
 
-  {% if product.thumbnail %}
-  <img src="{{ product.thumbnail }}" alt="thumbnail" width="150" height="100">
-  <br />
-  {% endif %}
-
-  <p>{{ product.description|truncatewords:25 }}...</p>
-
-  <p><a href="{% url 'main:show_product' product.id %}"><button>Lihat Detail</button></a></p>
+    <!-- List -->
+    {% if product_list %}
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 pb-12">
+        {% for product in product_list %}
+          {% include 'card_product.html' %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="bg-neutral-800 border border-neutral-700 rounded-lg p-8 text-center text-neutral-300">
+        Belum ada data produk pada Toko Footballer Jago.
+      </div>
+    {% endif %}
+  </div>
 </div>
-
-<hr>
-{% endfor %}
-
-{% endif %}
+{% endblock %}
