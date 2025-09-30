@@ -86,7 +86,9 @@ ul.errorlist {
       {% for m in messages %}<li>{{ m }}</li>{% endfor %}
     </ul>
   {% endif %}
-  {% include 'navbar.html' %}
+  {% if user.is_authenticated %}
+    {% include 'navbar.html' %}
+  {% endif %}
   {% block content %}{% endblock content %}
 </body>
 </html>
