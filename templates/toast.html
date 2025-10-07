@@ -1,0 +1,27 @@
+<!-- toast.html -->
+<div id="toast"
+     class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[60]
+            px-4 py-2 rounded-xl text-sm shadow-lg
+            bg-neutral-900 text-white">
+</div>
+
+<script>
+window.showToast ??= function(message, sub = "", variant = "success") {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.classList.remove('hidden');
+
+  el.classList.remove('bg-neutral-900','bg-green-700','bg-red-700','bg-yellow-600');
+  if (variant === 'success') el.classList.add('bg-green-700');
+  else if (variant === 'error') el.classList.add('bg-red-700');
+  else if (variant === 'warn') el.classList.add('bg-yellow-600');
+  else el.classList.add('bg-neutral-900');
+
+  el.innerHTML = sub
+    ? `<div class="font-medium">${message}</div><div class="text-xs opacity-90">${sub}</div>`
+    : `<div class="font-medium">${message}</div>`;
+
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => el.classList.add('hidden'), 1800);
+};
+</script>

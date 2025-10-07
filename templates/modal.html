@@ -1,0 +1,146 @@
+<!-- modal.html (DARK) -->
+<div id="productModal" class="hidden fixed inset-0 z-[50] bg-black/60">
+  <div class="bg-neutral-900 text-neutral-100 max-w-lg w-[92%] sm:w-full mx-auto mt-24 rounded-2xl
+              border border-neutral-700 shadow-xl">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-neutral-800">
+      <h2 id="modalTitle" class="text-lg font-semibold">Add Product</h2>
+      <button type="button"
+              class="text-neutral-400 hover:text-neutral-200"
+              onclick="window.closeProductModal()">✕</button>
+    </div>
+
+    <!-- Body -->
+    <form id="productForm" class="space-y-4 px-6 py-5" autocomplete="off">
+      <input type="hidden" id="productId">
+
+      <div>
+        <label for="name" class="block text-sm font-medium text-neutral-300 mb-1">Name</label>
+        <input id="name" name="name"
+               class="w-full rounded-xl p-2.5 bg-neutral-800 text-neutral-100 placeholder-neutral-400
+                      border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500"
+               required>
+      </div>
+
+      <div>
+        <label for="price" class="block text-sm font-medium text-neutral-300 mb-1">Price</label>
+        <input id="price" name="price" type="number" min="0"
+               class="w-full rounded-xl p-2.5 bg-neutral-800 text-neutral-100 placeholder-neutral-400
+                      border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500"
+               required>
+      </div>
+
+      <div>
+        <label for="category" class="block text-sm font-medium text-neutral-300 mb-1">Category</label>
+        <input id="category" name="category"
+               class="w-full rounded-xl p-2.5 bg-neutral-800 text-neutral-100 placeholder-neutral-400
+                      border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500">
+      </div>
+
+      <div>
+        <label for="thumbnail" class="block text-sm font-medium text-neutral-300 mb-1">Thumbnail (URL)</label>
+        <input id="thumbnail" name="thumbnail" placeholder="https://…"
+               class="w-full rounded-xl p-2.5 bg-neutral-800 text-neutral-100 placeholder-neutral-400
+                      border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500">
+      </div>
+
+      <div>
+        <label for="description" class="block text-sm font-medium text-neutral-300 mb-1">Description</label>
+        <textarea id="description" name="description" rows="3"
+                  class="w-full rounded-xl p-2.5 bg-neutral-800 text-neutral-100 placeholder-neutral-400
+                         border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500"></textarea>
+      </div>
+
+      <label class="inline-flex items-center gap-2 select-none">
+        <input id="is_featured" name="is_featured" type="checkbox" class="accent-fuchsia-600">
+        <span class="text-sm text-neutral-300">Featured</span>
+      </label>
+
+      <!-- Footer -->
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button"
+                class="px-4 py-2 rounded-xl border border-neutral-700 text-neutral-200 hover:bg-neutral-800"
+                onclick="window.closeProductModal()">Cancel</button>
+        <button type="submit"
+                class="px-4 py-2 rounded-xl text-white bg-fuchsia-600 hover:bg-fuchsia-700">
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+;(function () {
+  const modal = document.getElementById('productModal');
+  if (!modal) return;
+
+  // endpoints default
+  modal.dataset.createUrl ??= "{% url 'main:add_product_ajax' %}";
+  modal.dataset.updateUrl ??= "{% url 'main:update_product_ajax' '00000000-0000-0000-0000-000000000000' %}";
+  modal.dataset.deleteUrl ??= "{% url 'main:delete_product_ajax' '00000000-0000-0000-0000-000000000000' %}";
+
+  // helper scoped
+  const $ = (sel) => modal.querySelector(sel);
+
+  // open/close (scoped – mencegah tabrakan id)
+  window.openProductModal = function (title = 'Add Product', data = null) {
+    $('#modalTitle').textContent = title;
+    $('#productId').value     = data?.id ?? '';
+    $('#name').value          = data?.name ?? '';
+    $('#price').value         = data?.price ?? '';
+    $('#category').value      = data?.category ?? '';
+    $('#thumbnail').value     = data?.thumbnail ?? '';
+    $('#description').value   = data?.description ?? '';
+    $('#is_featured').checked = !!data?.is_featured;
+    modal.classList.remove('hidden');
+  };
+
+  window.closeProductModal = function () {
+    modal.classList.add('hidden');
+    $('#productForm').reset();
+    $('#productId').value = '';
+  };
+
+  // submit (create/update)
+  $('#productForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = $('#productId').value;
+    const body = new FormData($('#productForm'));
+    let url = modal.dataset.createUrl;
+    if (id) url = modal.dataset.updateUrl.replace('00000000-0000-0000-0000-000000000000', id);
+
+    try {
+      const res = await fetch(url, { method: 'POST', body });
+      if (!res.ok) {
+        const msg = await res.text();
+        window.showToast?.('Failed', msg || 'Invalid input', 'error');
+        return;
+      }
+      window.closeProductModal();
+      window.showToast?.(id ? 'Updated!' : 'Created!', '', 'success');
+      document.dispatchEvent(new CustomEvent(id ? 'product:updated' : 'product:created'));
+    } catch (err) {
+      window.showToast?.('Network error', String(err), 'error');
+    }
+  });
+
+  // optional delete helper
+  window.deleteProductById = async function (id) {
+    if (!confirm('Delete this product?')) return;
+    const url = modal.dataset.deleteUrl.replace('00000000-0000-0000-0000-000000000000', id);
+    try {
+      const res = await fetch(url, { method: 'POST' });
+      if (!res.ok) {
+        const msg = await res.text();
+        window.showToast?.('Delete failed', msg || '', 'error');
+        return;
+      }
+      window.showToast?.('Deleted!', '', 'success');
+      document.dispatchEvent(new CustomEvent('product:deleted'));
+    } catch (err) {
+      window.showToast?.('Network error', String(err), 'error');
+    }
+  };
+})();
+</script>

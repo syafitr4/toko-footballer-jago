@@ -7,37 +7,155 @@
 
 {% block content %}
 
+<!-- Header -->
+<div class="max-w-7xl mx-auto px-6 lg:px-8 pt-8">
+  <h1 class="text-2xl font-semibold text-white">Catalog</h1>
 
+  <!-- ===== Toolbar (gelap, rounded) ===== -->
+  <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3
+              bg-neutral-900/70 border border-neutral-800 rounded-xl p-3">
+    <div class="flex items-center gap-2">
+    <button id="btnAll"
+      class="px-3 py-2 rounded-lg text-sm font-medium bg-fuchsia-600 text-white">
+      All Products
+    </button>
+    <button id="btnMine"
+      class="px-3 py-2 rounded-lg text-sm font-medium bg-transparent text-neutral-200 border border-neutral-700 hover:border-neutral-500">
+      My Products
+    </button>
 
-  <!-- Header info -->
-  <div class="max-w-7xl mx-auto px-6 lg:px-8 pt-8">
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+      <button id="btnOpenCreate"
+              class="px-3 py-2 rounded-lg text-sm font-medium bg-transparent text-neutral-200 border border-neutral-700 hover:border-neutral-500">
+        + Add Product
+      </button>
     </div>
-
-    <!-- Filter bar -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-6 mb-8 bg-neutral-800 border border-neutral-700 p-4 rounded-lg">
-      <div class="flex space-x-3 mb-4 sm:mb-0">
-        <a href="{% url 'main:show_main' %}" class="{% if request.GET.filter == 'all' or not request.GET.filter %} bg-purple-600 text-white {% else %} bg-neutral-800 text-neutral-200 border border-neutral-600 hover:bg-neutral-700 {% endif %} px-4 py-2 rounded-md font-medium transition-colors">All Products</a>
-        <a href="{% url 'main:show_main' %}?filter=my" class="{% if request.GET.filter == 'my' %} bg-purple-600 text-white {% else %} bg-neutral-800 text-neutral-200 border border-neutral-600 hover:bg-neutral-700 {% endif %} px-4 py-2 rounded-md font-medium transition-colors">My Products</a>
-        <a href="{% url 'main:create_product' %}" class="bg-neutral-800 text-neutral-200 border border-neutral-600 hover:bg-neutral-700 px-4 py-2 rounded-md font-medium transition-colors">+ Add Product</a>
-      </div>
-      {% if user.is_authenticated %}
-        <div class="text-sm text-neutral-400">Sesi terakhir login: {{ last_login }}</div>
-      {% endif %}
+    <div class="text-xs sm:text-sm text-neutral-300/90">
+      Sesi terakhir login: {{ last_login }}
     </div>
-
-    <!-- List -->
-    {% if product_list %}
-      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 pb-12">
-        {% for product in product_list %}
-          {% include 'card_product.html' %}
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="bg-neutral-800 border border-neutral-700 rounded-lg p-8 text-center text-neutral-300">
-        Belum ada data produk pada Toko Footballer Jago.
-      </div>
-    {% endif %}
   </div>
+
+  <!-- State -->
+  <div id="loading" class="text-sm text-neutral-400 mt-6">Loading products…</div>
+  <div id="error" class="hidden text-sm text-red-400 mt-6">Failed to load.</div>
+  <div id="empty" class="hidden text-sm text-neutral-400 mt-6">No products yet.</div>
+
+  <!-- Grid -->
+  <div id="grid" class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
 </div>
-{% endblock %}
+
+{% include 'toast.html' %}
+{% include 'modal.html' %}
+
+<script>
+// ===== Utils
+function show(el){ el.classList.remove('hidden') }
+function hide(el){ el.classList.add('hidden') }
+
+// ===== State filter (HARUS di atas sebelum dipakai)
+let filterMode = 'all'; // 'all' | 'mine'
+
+// ===== Fetch & render
+async function fetchProducts(){
+  const loading = document.getElementById('loading');
+  const error   = document.getElementById('error');
+  const empty   = document.getElementById('empty');
+  const grid    = document.getElementById('grid');
+
+  show(loading); hide(error); hide(empty);
+  grid.innerHTML = '';
+
+  try{
+    const url = new URL("{% url 'main:products_json' %}", window.location.origin);
+    if (filterMode === 'mine') url.searchParams.set('mine', '1');
+
+    const res  = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    hide(loading);
+    if (!data.length){ show(empty); return; }
+
+    for (const p of data){
+      const card = document.createElement('div');
+      card.className = "rounded-2xl border border-neutral-800 bg-neutral-900/70 text-neutral-200 overflow-hidden hover:ring-1 hover:ring-fuchsia-500/50 transition";
+      card.innerHTML = `
+        <div class="w-full h-48 sm:h-56 bg-black/30 overflow-hidden flex items-center justify-center">
+          <img src="${p.thumbnail || 'https://via.placeholder.com/640x360?text=No+Image'}"
+               alt=""
+               class="max-h-full max-w-full object-contain"
+               loading="lazy">
+        </div>
+        <div class="p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="uppercase tracking-wide text-xs text-neutral-400">${(p.category || '') || '&nbsp;'}</div>
+              <h3 class="mt-1 font-semibold text-white">${p.name}</h3>
+            </div>
+            ${p.is_featured ? '<span class="text-[10px] px-2 py-1 rounded-full bg-yellow-300/20 text-yellow-300 border border-yellow-300/30">Featured</span>' : ''}
+          </div>
+
+          <div class="mt-2 text-fuchsia-400 font-semibold">Rp ${Number(p.price).toLocaleString('id-ID')}</div>
+          <p class="mt-2 text-sm text-neutral-400">${p.description || ''}</p>
+
+          ${p.can_edit ? `
+          <div class="mt-4 flex items-center gap-2">
+            <button data-id="${p.id}"
+                    class="btnEdit px-3 py-1 rounded-lg border border-neutral-700 hover:border-fuchsia-500/60 text-neutral-200">
+              Edit
+            </button>
+            <button data-id="${p.id}"
+                    class="btnDelete px-3 py-1 rounded-lg border border-red-500/40 text-red-300 hover:border-red-400">
+              Delete
+            </button>
+          </div>` : ``}
+        </div>
+      `;
+      grid.appendChild(card);
+    }
+
+    // attach events setelah render
+    document.querySelectorAll('.btnEdit').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        const id = e.currentTarget.dataset.id;
+        const prod = [...grid.querySelectorAll('.btnEdit')]
+          ? data.find(x=>x.id===id) : null;
+        openProductModal('Edit Product', prod);
+      });
+    });
+    document.querySelectorAll('.btnDelete').forEach(btn=>{
+      btn.addEventListener('click', (e)=> deleteProductById(e.currentTarget.dataset.id));
+    });
+
+  }catch(err){
+    console.error(err);
+    hide(loading); show(error);
+  }
+}
+
+// ===== Tab aktif
+function setActiveTab(){
+  const all  = document.getElementById('btnAll');
+  const mine = document.getElementById('btnMine');
+  const inactive = "px-3 py-2 rounded-lg text-sm font-medium bg-transparent text-neutral-200 border border-neutral-700 hover:border-neutral-500";
+  const active   = "px-3 py-2 rounded-lg text-sm font-medium bg-fuchsia-600 text-white";
+  all.className  = (filterMode === 'all')  ? active : inactive;
+  mine.className = (filterMode === 'mine') ? active : inactive;
+}
+
+// ===== Events toolbar
+document.getElementById('btnOpenCreate')?.addEventListener('click', ()=>openProductModal('Add Product'));
+document.getElementById('btnAll') ?.addEventListener('click', ()=>{ filterMode='all';  setActiveTab(); fetchProducts(); });
+document.getElementById('btnMine')?.addEventListener('click', ()=>{ filterMode='mine'; setActiveTab(); fetchProducts(); });
+
+// ===== Refresh saat CRUD
+document.addEventListener('product:created', fetchProducts);
+document.addEventListener('product:updated', fetchProducts);
+document.addEventListener('product:deleted', fetchProducts);
+
+// ===== Init
+setActiveTab();
+fetchProducts();
+</script>
+
+
+{% endblock content %}
