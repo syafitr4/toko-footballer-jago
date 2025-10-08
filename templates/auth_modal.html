@@ -1,0 +1,117 @@
+<!-- Overlay -->
+<div id="authOverlay" class="hidden fixed inset-0 z-[60] bg-black/60"></div>
+
+<!-- ===== LOGIN MODAL ===== -->
+<div id="loginModal" class="hidden fixed inset-0 z-[61] grid place-items-center">
+  <div class="bg-neutral-900 text-neutral-100 w-[92%] max-w-md rounded-2xl border border-neutral-700 shadow-xl">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-neutral-800">
+      <h3 class="text-lg font-semibold">Login</h3>
+      <button class="text-neutral-400 hover:text-neutral-200" onclick="closeAuthModals()">✕</button>
+    </div>
+    <form id="loginForm" class="px-5 py-5 space-y-4" autocomplete="off">
+      <div>
+        <label for="login_username" class="block text-sm text-neutral-300 mb-1">Username</label>
+        <input id="login_username" name="username"
+               class="w-full rounded-xl p-2.5 bg-neutral-800 text-neutral-100 border border-neutral-700
+                      focus:outline-none focus:ring-2 focus:ring-fuchsia-500">
+      </div>
+      <div>
+        <label for="login_password" class="block text-sm text-neutral-300 mb-1">Password</label>
+        <input id="login_password" name="password" type="password"
+               class="w-full rounded-xl p-2.5 bg-neutral-800 text-neutral-100 border border-neutral-700
+                      focus:outline-none focus:ring-2 focus:ring-fuchsia-500">
+      </div>
+      <div class="flex justify-between items-center pt-2">
+        <button type="button" class="text-sm text-neutral-300 hover:text-white"
+                onclick="switchToRegister()">Create account</button>
+        <button type="submit" class="px-4 py-2 rounded-xl text-white bg-fuchsia-600 hover:bg-fuchsia-700">
+          Login
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== REGISTER MODAL ===== -->
+<div id="registerModal" class="hidden fixed inset-0 z-[61] grid place-items-center">
+  <div class="bg-neutral-900 text-neutral-100 w-[92%] max-w-md rounded-2xl border border-neutral-700 shadow-xl">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-neutral-800">
+      <h3 class="text-lg font-semibold">Register</h3>
+      <button class="text-neutral-400 hover:text-neutral-200" onclick="closeAuthModals()">✕</button>
+    </div>
+    <form id="registerForm" class="px-5 py-5 space-y-4" autocomplete="off">
+      <div>
+        <label for="reg_username" class="block text-sm text-neutral-300 mb-1">Username</label>
+        <input id="reg_username" name="username"
+               class="w-full rounded-xl p-2.5 bg-neutral-800 text-neutral-100 border border-neutral-700
+                      focus:outline-none focus:ring-2 focus:ring-fuchsia-500">
+      </div>
+      <div>
+        <label for="reg_password1" class="block text-sm text-neutral-300 mb-1">Password</label>
+        <input id="reg_password1" name="password1" type="password"
+               class="w-full rounded-xl p-2.5 bg-neutral-800 text-neutral-100 border border-neutral-700
+                      focus:outline-none focus:ring-2 focus:ring-fuchsia-500">
+      </div>
+      <div>
+        <label for="reg_password2" class="block text-sm text-neutral-300 mb-1">Confirm Password</label>
+        <input id="reg_password2" name="password2" type="password"
+               class="w-full rounded-xl p-2.5 bg-neutral-800 text-neutral-100 border border-neutral-700
+                      focus:outline-none focus:ring-2 focus:ring-fuchsia-500">
+      </div>
+      <div class="flex justify-between items-center pt-2">
+        <button type="button" class="text-sm text-neutral-300 hover:text-white"
+                onclick="switchToLogin()">I already have an account</button>
+        <button type="submit" class="px-4 py-2 rounded-xl text-white bg-fuchsia-600 hover:bg-fuchsia-700">
+          Register
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(() => {
+  const overlay = document.getElementById('authOverlay');
+  const loginM  = document.getElementById('loginModal');
+  const regM    = document.getElementById('registerModal');
+
+  function show(el){ el.classList.remove('hidden'); }
+  function hide(el){ el.classList.add('hidden'); }
+
+  // Expose global open/close
+  window.openLoginModal = () => { show(overlay); show(loginM); hide(regM); };
+  window.openRegisterModal = () => { show(overlay); show(regM); hide(loginM); };
+  window.closeAuthModals = () => { hide(overlay); hide(loginM); hide(regM); };
+
+  window.switchToRegister = () => { hide(loginM); show(regM); };
+  window.switchToLogin = () => { hide(regM); show(loginM); };
+
+  // Submit LOGIN
+  document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = new FormData(e.currentTarget);
+    try{
+      const res = await fetch("{% url 'main:login_ajax' %}", { method:'POST', body });
+      if(!res.ok){ window.showToast?.('Login failed', await res.text(), 'error'); return; }
+      window.showToast?.('Logged in!', '', 'success');
+      window.location.reload(); // refresh navbar & halaman
+    }catch(err){
+      window.showToast?.('Network error', String(err), 'error');
+    }
+  });
+
+  // Submit REGISTER
+  document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = new FormData(e.currentTarget);
+    try{
+      const res = await fetch("{% url 'main:register_ajax' %}", { method:'POST', body });
+      if(!res.ok){ window.showToast?.('Register failed', await res.text(), 'error'); return; }
+      window.showToast?.('Account created!', 'You are now logged in.', 'success');
+      window.location.reload();
+    }catch(err){
+      window.showToast?.('Network error', String(err), 'error');
+    }
+  });
+})();
+</script>

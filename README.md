@@ -137,3 +137,23 @@ asdosnya udah baik dan sangat membantu saya yg kesusahan di tutorial 1 kemarin
 5. Implementasi checklist saya mulai dari sisi logika aplikasi, yaitu menambahkan fitur edit dan hapus produk. Saya menambahkan rute untuk edit dan delete, lalu menulis dua fungsi view yang mewajibkan pengguna login. Untuk fitur edit, saya mengambil objek produk berdasarkan identitasnya, mengikatnya ke form produk, kemudian pada pengiriman yang valid saya simpan perubahan, menampilkan pesan sukses, dan mengarahkan kembali ke halaman utama. Untuk fitur delete, saya menampilkan halaman konfirmasi sederhana, jika pengguna menekan tombol hapus maka produk dihapus dan aplikasi kembali ke daftar dengan pesan sukses. Pada tampilan kartu produk, saya menambahkan dua tombol, satu menuju halaman edit dan satu lagi berupa form penghapusan kecil agar alur kerja cepat. Setelah CRUD berfungsi, saya melakukan kustomisasi tampilan pada halaman login, register, tambah produk, edit produk, dan detail produk, saya menyatukan gaya form agar konsisten, menggunakan latar gelap, teks kontras, sudut membulat, dan efek fokus yang jelas. Untuk halaman daftar produk, saya menggunakan susunan grid yang responsif, jumlah kolom menyesuaikan lebar layar, setiap kartu berisi gambar bila tersedia, nama, harga, deskripsi singkat, serta tombol edit dan hapus. Saya juga menambahkan empty state, jika belum ada produk maka pengguna melihat ilustrasi dan pesan bahwa belum ada produk yang terdaftar beserta ajakan untuk menambahkan produk pertama. Navigasi saya buat responsif, di desktop menu tampil penuh, sementara di ponsel menu disederhanakan, dan navbar hanya ditampilkan setelah login menggunakan kondisi pada template sehingga halaman publik tetap bersih. Terakhir, saya menguji tampilan pada beberapa lebar layar untuk memastikan tidak ada overflow, pergeseran tata letak yang mengganggu, atau elemen yang saling bertabrakan, hasilnya alur CRUD terasa mulus dan antarmuka nyaman digunakan pada perangkat apa pun.
 
 </details>
+
+<details>
+<summary><b>Tugas 6</b></summary>
+jawaban readme
+
+1. Synchronous vs Asynchronous request
+   Synchronous: browser “menunggu” respons—UI terblokir sampai server selesai (mis. full page reload). Asynchronous (AJAX): request dikirim di belakang layar, halaman tetap interaktif dan hanya bagian tertentu yang diperbarui ketika respons tiba. Dampaknya, async memberi UX yang lebih halus dan responsif, sementara sync sederhana tapi terasa lambat karena jeda menunggu.
+
+2. Alur AJAX di Django (request–response)
+   Event UI → JS fetch()/XHR kirim ke URL Django → urls.py mengarah ke views.py → view memproses (validasi, DB) → mengembalikan JSON/HTML fragment via JsonResponse/render_to_string → JS menerima respons dan memutakhirkan DOM (tanpa reload). Jika perlu otentikasi/CSRF, Django middleware ikut bermain sebelum/ sesudah view.
+
+3. Keuntungan AJAX vs render biasa di Django
+   AJAX mengurangi reload halaman penuh, jadi lebih cepat (hanya data yang berubah yang diunduh) dan lebih interaktif (form inline, pagination dinamis, live search). Di sisi server, kamu bisa memisahkan endpoint data (JSON/fragment) dari halaman utama, membuat komponen UI yang bisa dipakai ulang dan lebih mudah di-compose. Render penuh cocok untuk halaman statis atau first load, setelah itu AJAX menang untuk interaksi.
+
+4. Keamanan AJAX untuk Login/Register di Django
+   Gunakan CSRF token pada setiap POST (kirim header X-CSRFToken), validasi input di server (jangan hanya di client), dan batasi informasi error (“Invalid credentials” generik). Terapkan rate limiting/cooldown untuk mencegah brute force, pakai HTTPS agar kredensial terenkripsi, dan pastikan session dikelola oleh Django (bukan disimpan di JS). Sanitasi output/HTML fragment untuk mencegah XSS.
+
+5. Dampak AJAX pada User Experience (UX)
+   AJAX membuat aplikasi terasa lebih cepat dan mulus: tidak ada flash reload, interaksi terasa instan (menambah item, filter, pagination). Ini menurunkan friksi dan meningkatkan perceived performance serta engagement. Namun, perlu indikator loading, error handling yang jelas, fokus/ARIA yang benar, dan fallback agar aksesibilitas serta konsistensi UX tetap terjaga.
+</details>
